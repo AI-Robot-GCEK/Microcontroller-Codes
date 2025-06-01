@@ -1,0 +1,16 @@
+#define PIN_LA1 0
+#define PIN_LA2 1
+#define PIN_LA3 2
+#define PIN_RA1 3
+#define PIN_RA2 4
+#define PIN_RA3 5
+#define PIN_LH 6 // change this to LH 
+#define PIN_RH 7 // change this to RH
+#define PIN_LL1 8
+#define PIN_LL2 9
+#define PIN_LL3 10
+#define PIN_RL1 11
+#define PIN_RL2 12
+#define PIN_RL3 13
+#define PIN_LF 14
+#define PIN_RF 15
