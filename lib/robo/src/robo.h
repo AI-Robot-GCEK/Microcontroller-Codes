@@ -31,7 +31,7 @@
 
 // Foots
 #define LF_INITIAL_POSITION 99
-#define RF_INITIAL_POSITION 99
+#define RF_INITIAL_POSITION 99≠
 
 
 class Robo{
