@@ -1,6 +1,5 @@
 #include "robo-web-server.h"
 #include "configs.h"
-
 #include <Arduino.h>
 
 
@@ -52,11 +51,15 @@ void RoboWebServer::handleRoot() {
         html += sliderHtml;
     }
     html += "</body></html>";
-        _server.send(200, "text/html", html);
-    }
+    _server.send(200, "text/html", html);
+}
 
-void RoboWebServer::handleSetServobyAngle() {
+
+
+// byangle
+void RoboWebServer::handleSetServo() {
     if (_server.hasArg("id") && _server.hasArg("angle")) {
+        Serial.printf("handleSetServobyAngle");
         uint8_t id = _server.arg("id").toInt();
         uint8_t angle = _server.arg("angle").toInt();
         // Validate parameters
@@ -67,27 +70,33 @@ void RoboWebServer::handleSetServobyAngle() {
             return;
         }
     }
-    _server.send(400, "text/plain", "Bad Request - Use: /setServo?id=X&angle=Y (where X=0-15, Y=0-180)");
+    _server.send(400, "text/plain", "Bad Request - Use: /setServoAngle?id=X&angle=Y (where X=0-15, Y=0-180)");
 }
-void RoboWebServer::handleSetServobyPulse() {
-    if (_server.hasArg("id") && _server.hasArg("angle")) {
-        uint8_t id = _server.arg("id").toInt();
-        uint16_t pulse = _server.arg("pulse").toInt();
-        // Validate parameters
-        if (id >= 0 && id < 16 && pulse >= SERVO_MIN && pulse <= SERVO_MAX) {
-            _roboParts[id]->set_pulse(pulse);  // Use set_pulse instead of set_angle
-            String response = "Updated servo " + String(id) + " to pulse " + String(pulse);
-            _server.send(200, "text/plain", response);
-            return;
-        }
-    }
-    _server.send(400, "text/plain", "Bad Request - Use: /setServo?id=X&pulse= where id=0-15 and pulse = 102-512");
-}
+
+// void RoboWebServer::handleSetServobyPulse() {
+//     if (_server.hasArg("id") && _server.hasArg("pulse")) {
+//         uint8_t id = _server.arg("id").toInt();
+//         uint16_t pulse = _server.arg("pulse").toInt();
+//         // Validate parameters
+//         if (id >= 0 && id < 16 && pulse >= SERVO_MIN && pulse <= SERVO_MAX) {
+//             _roboParts[id]->set_pulse(pulse);  // Use set_pulse instead of set_angle
+//             String response = "Updated servo " + String(id) + " to pulse " + String(pulse);
+//             _server.send(200, "text/plain", response);
+//             return;
+//         }
+//     }
+//     _server.send(400, "text/plain", "Bad Request - Use: /setServoPulse?id=X&pulse=Y (where X=0-15, Y=102-512)");
+// }
 
 
 void RoboWebServer::begin() {
     _server.on("/", std::bind(&RoboWebServer::handleRoot, this));
-    _server.on("/setServoAngle", std::bind(&RoboWebServer::handleSetServobyAngle, this));
-    _server.on("/setServoPulse", std::bind(&RoboWebServer::handleSetServobyPulse, this));
+    _server.on("/setServo", std::bind(&RoboWebServer::handleSetServo, this));
+    // _server.on("/setServoPulse", std::bind(&RoboWebServer::handleSetServobyPulse, this));
+    // Add a catch-all handler for undefined routes
+    _server.onNotFound([this]() {
+        Serial.println("Request handler not found");
+        _server.send(404, "text/plain", "404 Not Found");
+    });
     _server.begin();
 }

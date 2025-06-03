@@ -11,8 +11,8 @@ class RoboWebServer {
         void begin();
         void handleRoot();
         void handleClient();
-        void handleSetServobyAngle();
-        void handleSetServobyPulse();
+        void handleSetServo();
+        // void handleSetServobyPulse();
     private:
         Robo** _roboParts;
         WebServer& _server;

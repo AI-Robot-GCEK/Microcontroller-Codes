@@ -175,16 +175,16 @@ uint16_t Robo::get_current_pulse() {
 }
 
 
-// void Robo::set_angle(uint8_t _angle) {
-//     _current_angle = _angle;
-//     _board.setPWM(_servo_id, 0, get_pulse(_angle));
-// }
+void Robo::set_angle(uint8_t _angle) {
+    _current_angle = _angle;
+    _board.setPWM(_servo_id, 0, get_pulse(_angle));
+}
 
-// void Robo::set_pulse(uint16_t _pulse) {
-//     _previous_angle = _current_angle;
-//     _current_angle = map(_pulse, SERVO_MIN, SERVO_MAX, SERVO_ANGLE_MIN, SERVO_ANGLE_MAX);
-//     _board.setPWM(_servo_id, 0, _pulse);
-// }
+void Robo::set_pulse(uint16_t _pulse) {
+    _previous_angle = _current_angle;
+    _current_angle = map(_pulse, SERVO_MIN, SERVO_MAX, SERVO_ANGLE_MIN, SERVO_ANGLE_MAX);
+    _board.setPWM(_servo_id, 0, _pulse);
+}
 
 
 

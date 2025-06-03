@@ -1,4 +1,4 @@
-#define SSID "jioairfiber"
+#define WIFI_SSID "jioairfiber"
 #define PASSWORD "7559016538"
 // For Serial UART 
 #define BAUD_RATE 115200

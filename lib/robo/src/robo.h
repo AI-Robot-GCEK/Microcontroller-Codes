@@ -31,7 +31,7 @@
 
 // Foots
 #define LF_INITIAL_POSITION 99
-#define RF_INITIAL_POSITION 99≠
+#define RF_INITIAL_POSITION 99
 
 
 class Robo{
@@ -48,9 +48,9 @@ class Robo{
         uint8_t get_current_angle();
         uint16_t get_current_pulse();
 
-        // void set_angle(uint8_t _angle);
+        void set_angle(uint8_t _angle);
         // //@brief set the angle of the servo
-        // void set_pulse(uint16_t _pulse);
+        void set_pulse(uint16_t _pulse);
 
         uint16_t get_pulse(uint8_t _angle);
 
