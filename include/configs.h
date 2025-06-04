@@ -1,5 +1,5 @@
-#define WIFI_SSID "jioairfiber"
-#define PASSWORD "7559016538"
+#define WIFI_SSID "redmi"
+#define PASSWORD "redmippp"
 // For Serial UART 
 #define BAUD_RATE 115200
 // Not used , 
