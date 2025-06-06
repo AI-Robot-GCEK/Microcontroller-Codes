@@ -1,47 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
-#include <Adafruit_PWMServoDriver.h>
-#include <Arduino_JSON.h>
 #include "configs.h"
-#include "pins.h"
-#include "robo.h"
-
-
-const char* ssid = "redmi";
-const char* password = "redmippp";
-
-// MG995 servo specifications:
-// - Operating angle: 0° to 180°
-// - Pulse width: 500µs to 2500µs
-
-
-uint16_t get_pulse(uint8_t _angle){
-    _angle = constrain(_angle, SERVO_ANGLE_MIN, SERVO_ANGLE_MAX);
-    uint16_t _pulse = map(_angle, SERVO_ANGLE_MIN, SERVO_ANGLE_MAX, SERVO_MIN, SERVO_MAX);
-    Serial.print("Angle: "); Serial.print(_angle);
-    Serial.print(" pulse: "); Serial.println(_pulse);
-    return _pulse;
-}
-
-// // Define initial positions for all 16 servos
-// #define LA1_INITIAL_POSITION 10
-// #define LA2_INITIAL_POSITION 0
-// #define LA3_INITIAL_POSITION 16
-// #define RA3_INITIAL_POSITION 10
-// #define LA5_INITIAL_POSITION 10
-// #define LA6_INITIAL_POSITION 10
-// #define LA7_INITIAL_POSITION  90
-// #define LA8_INITIAL_POSITION 96
-// #define LA9_INITIAL_POSITION 0
-// #define LA10_INITIAL_POSITION 10
-// #define LA11_INITIAL_POSITION 141
-// #define LA12_INITIAL_POSITION 180
-// #define LA13_INITIAL_POSITION 170
-// #define LA14_INITIAL_POSITION 39
-// #define LA15_INITIAL_POSITION 99
-// #define LA16_INITIAL_POSITION 99
-
+#include <robo-movements.h>
 
 
 int servoPositions[16] = {
@@ -51,8 +12,34 @@ int servoPositions[16] = {
     RL2_INITIAL_POSITION, RL3_INITIAL_POSITION, LF_INITIAL_POSITION, RF_INITIAL_POSITION
 };
 
-Adafruit_PWMServoDriver board1 = Adafruit_PWMServoDriver(CONTROLLER_I2C_ADDR_1);       // called this way, it uses the default address 0x40   
 
+Adafruit_PWMServoDriver board = Adafruit_PWMServoDriver(CONTROLLER_I2C_ADDR_1);
+
+
+Robo la1(PIN_LA1);
+Robo la2(PIN_LA2);
+Robo la3(PIN_LA3);
+Robo ra1(PIN_RA1);
+Robo ra2(PIN_RA2);
+Robo ra3(PIN_RA3);
+Robo lh(PIN_LH);
+Robo rh(PIN_RH);
+Robo ll1(PIN_LL1);
+Robo ll2(PIN_LL2);
+Robo ll3(PIN_LL3);
+Robo rl1(PIN_RL1);
+Robo rl2(PIN_RL2);
+Robo rl3(PIN_RL3);
+Robo lf(PIN_LF);
+Robo rf(PIN_RF);
+
+// Robo::set_board(board); // Set the board for all Robo objects
+
+Robo* robots[NUM_SERVOS] ={
+    &la1, &la2, &la3, &ra1, &ra2, &ra3,
+    &lh, &rh, &ll1, &ll2, &ll3, &rl1,
+    &rl2, &rl3, &lf, &rf
+};
 WebServer server(HTTP_SERVER_PORT);
 
 // HTML content for the web interface
@@ -97,13 +84,13 @@ void handleRoot() {
 void handleSetServo() {
     if (server.hasArg("id") && server.hasArg("angle")) {
         int id = server.arg("id").toInt();
-        int position = server.arg("angle").toInt();
+        int angle = server.arg("angle").toInt();
         
         // Validate parameters
-        if (id >= 0 && id < 16 && position >= SERVO_ANGLE_MIN && position <= SERVO_ANGLE_MAX) {
-            servoPositions[id] = position;
-            board1.setPWM(id, 0, get_pulse(position));  // Fix: Use get_pulse instead of raw position
-            String response = "Updated servo " + String(id) + " to position " + String(position);
+        if (id >= 0 && id < 16 && angle >= SERVO_ANGLE_MIN && angle <= SERVO_ANGLE_MAX) {
+            // servoPositions[id] = angle;
+            robots[id]->set_angle(angle); // Update the servo position
+            String response = "Updated servo " + String(id) + " to position " + String(angle);
             server.send(200, "text/plain", response);
             return;
         }
@@ -113,11 +100,8 @@ void handleSetServo() {
 
 void setup() {
     Serial.begin(115200);
-    board1.begin();
-    board1.setPWMFreq(SERVO_FREQ);
-
     // Connect to WiFi
-    WiFi.begin(ssid, password);
+    WiFi.begin(WIFI_SSID, PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
         delay(1000);
         Serial.print(".");
@@ -125,17 +109,27 @@ void setup() {
     Serial.println("\nConnected to WiFi");
     Serial.println(WiFi.localIP());
 
+    Robo::set_board(board); // Set the board for all Robo objects
+
+
     // Initialize all servos to their initial positions
-    for (int i = 0; i < 16; i++) {
-        board1.setPWM(i, 0, get_pulse(servoPositions[i]));  // Fix: Use get_pulse instead of angleToPulse
+    for (int id = 0; id < 16; id++) {
+        if (robots[id] != nullptr) {
+            robots[id]->initialize();
+            delay(100); 
+        } else {
+            Serial.println("Error: Robot object for servo " + String(id) + " is null.");
+        }
     }
-    
     server.on("/", handleRoot);
     server.on("/setServo", handleSetServo);
     server.begin();
-    Serial.println("Web server started");
+    Serial.print("Web server started -> " ); 
+    Serial.println(WiFi.localIP());
+
 }
 
 void loop() {
     server.handleClient(); // Handle client requests
+    delay(50);
 }

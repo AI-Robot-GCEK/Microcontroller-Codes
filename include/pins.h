@@ -4,8 +4,8 @@
 #define PIN_RA1 3
 #define PIN_RA2 4
 #define PIN_RA3 5
-#define PIN_LH 6 // change this to LH 
-#define PIN_RH 7 // change this to RH
+#define PIN_LH 6 
+#define PIN_RH 7 
 #define PIN_LL1 8
 #define PIN_LL2 9
 #define PIN_LL3 10
